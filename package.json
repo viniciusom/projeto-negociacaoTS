@@ -1,0 +1,23 @@
+{
+  "name": "projeto-negociacaots",
+  "version": "1.0.0",
+  "description": "Projeto que envolve formulário e tabela em TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viniciusom/projeto-negociacaoTS.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/viniciusom/projeto-negociacaoTS/issues"
+  },
+  "homepage": "https://github.com/viniciusom/projeto-negociacaoTS#readme",
+  "devDependencies": {
+    "typescript": "^2.3.2"
+  }
+}
