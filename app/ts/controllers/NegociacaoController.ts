@@ -1,7 +1,6 @@
 import { Negociacoes, Negociacao } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
 import { domInject, throttle } from '../helpers/decorators/index';
-import { NegociacaoParcial } from '../models/index';
 import { NegociacaoService } from '../services/index';
 import { imprime } from '../helpers/utils';
 
@@ -53,6 +52,7 @@ export class NegociacaoController {
         return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
     }
 
+
     @throttle()
     importaDados() {
 
@@ -64,13 +64,14 @@ export class NegociacaoController {
                 throw new Error(res.statusText);
             }
         })
-        .then(negociacoes => {
-            negociacoes.forEach(negociacao => 
+        .then(negociacoesParaImportar => {
+            const negociacoesJaImportadas = this._negociacoes.paraArray();
+            negociacoesParaImportar.filter(negociacao => negociacoesJaImportadas.some(jaImportada => negociacao.ehIgual(jaImportada)))
+            .forEach(negociacao => 
                 this._negociacoes.adiciona(negociacao));
             
             this._negociacoesView.update(this._negociacoes);
         });
-
     }
 }
 
