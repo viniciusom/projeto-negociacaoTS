@@ -1,6 +1,9 @@
 import { Negociacoes, Negociacao } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
-import { domInject } from '../helpers/decorators/index';
+import { domInject, throttle } from '../helpers/decorators/index';
+import { NegociacaoParcial } from '../models/index';
+import { NegociacaoService } from '../services/index';
+import { imprime } from '../helpers/utils';
 
 export class NegociacaoController {
 
@@ -16,13 +19,14 @@ export class NegociacaoController {
     private _negociacoesView = new NegociacoesView('#negociacoesView', true);
     private _mensagemView = new MensagemView('#mensagemView', true);
 
+    private _service = new NegociacaoService();
+
     constructor() {
         this._negociacoesView.update(this._negociacoes);
     }
+    @throttle()
+    adiciona(){
 
-    adiciona(event: Event){
-
-        event.preventDefault();
 
         let data = new Date(this._inputData.val().replace(/-/g, ','));
 
@@ -38,7 +42,7 @@ export class NegociacaoController {
         );
 
         this._negociacoes.adiciona(negociacao);
-
+        imprime(negociacao, this._negociacoes);
         this._negociacoesView.update(this._negociacoes);
         this._mensagemView.update('Negociação adicionada com sucesso!');
 
@@ -49,26 +53,24 @@ export class NegociacaoController {
         return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
     }
 
+    @throttle()
     importaDados() {
-        
-        function isOk(res: any) {
+
+        this._service
+        .obterNegociacoes(res => {
             if(res.ok) {
                 return res;
             } else {
                 throw new Error(res.statusText);
             }
-        }
-        fetch('http://localhost:8080/dados')
-        .then(res => isOk(res))
-        .then(res => res.json())
-        .then((dados: any[]) => {
-            dados
-                .map(dado => new Negociacao(new Date(), dado.vezes, dado.montante))
-                .forEach(negociacao => this._negociacoes.adiciona(negociacao))
-                this._negociacoesView.update(this._negociacoes);
         })
-        
-        .catch(err => console.log(err.message));
+        .then(negociacoes => {
+            negociacoes.forEach(negociacao => 
+                this._negociacoes.adiciona(negociacao));
+            
+            this._negociacoesView.update(this._negociacoes);
+        });
+
     }
 }
 
